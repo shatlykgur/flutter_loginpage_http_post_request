@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_loginpage_http_post_request/models/login_model.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,6 +10,13 @@ class _LoginPageState extends State<LoginPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = new GlobalKey<FormState>();
   bool hidePassword = true;
+  LoginRequestModel requestModel;
+
+  @override
+  void initState() {
+    super.initState();
+    requestModel = new LoginRequestModel();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(height: 20),
                         TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          //onSaved: ,
+                          onSaved: (input) => requestModel.email = input,
                           validator: (input) => !input.contains("@")
                               ? "Email Id should be Valid"
                               : null,
@@ -66,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(height: 20.0),
                         TextFormField(
                           keyboardType: TextInputType.text,
-                          //onSaved: ,
+                          onSaved: (input) => requestModel.password = input,
                           validator: (input) => input.length < 3
                               ? "Password should be more than 3 characters"
                               : null,
@@ -79,11 +87,14 @@ class _LoginPageState extends State<LoginPage> {
                                         .accentColor
                                         .withOpacity(0.2))),
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
+                              borderSide: BorderSide(
+                                color: Theme.of(context).accentColor,
+                              ),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.lock,
                               color: Theme.of(context).accentColor,
-                            )),
-                            prefixIcon: Icon(Icons.email,
-                                color: Theme.of(context).accentColor),
+                            ),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
@@ -105,7 +116,11 @@ class _LoginPageState extends State<LoginPage> {
                             vertical: 12,
                             horizontal: 80,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            if (validateAndSave()) {
+                              print(requestModel.toJson());
+                            }
+                          },
                           child: Text("Login",
                               style: TextStyle(color: Colors.white)),
                           color: Theme.of(context).accentColor,
@@ -121,5 +136,14 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  bool validateAndSave() {
+    final form = globalFormKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 }
